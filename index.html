@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+      <title>Destroy the Evil Tower</title>
+
+        <meta charset="utf-8">
+        <meta name="keywords" content=""/>
+        <meta name="description" content=""/>
+
+        <script src="pixi.js"></script>
+        <script src="p2.js"></script>
+
+        <style type="text/css" media="screen">
+          body {
+            margin: 0px;
+          }
+        </style>
+
+
+        <!--[if IE]>
+          <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+      <script type="text/javascript" language="javascript" charset="utf-8">
+      //<![CDATA[
+        let app = new PIXI.Application({
+          forceCanvas: true
+        });
+
+        let type = "WebGL"
+        if(!PIXI.utils.isWebGLSupported()){
+          type = "canvas"
+        }
+
+        PIXI.utils.sayHello(type)
+
+
+        app.renderer.view.style.position = "absolute";
+        app.renderer.view.style.display = "block";
+        app.renderer.autoResize = true;
+        app.renderer.resize(window.innerWidth, window.innerHeight);
+        // debugger
+        app.stage.position.y = app.renderer.height / app.renderer.resolution;
+        app.stage.scale.y = -1;
+
+        //Add the canvas that Pixi automatically created for you to the HTML document
+        document.body.appendChild(app.view);
+
+        const renderCharacter = (x, y, width, height) => {
+          let rectangle = new PIXI.Graphics()
+          rectangle.beginFill(0x66CCFF)
+          rectangle.lineStyle(4, 0xFF3300, 1)
+          rectangle.drawRect(x, y, width, height)
+          rectangle.endFill()
+          app.stage.addChild(rectangle)
+        }
+
+        const runWorldPhysics = () => {
+            // To animate the bodies, we must step the world forward in time, using a fixed time step size.
+          // The World will run substeps and interpolate automatically for us, to get smooth animation.
+          var fixedTimeStep = 1 / 60; // seconds
+          var maxSubSteps = 10; // Max sub steps to catch up with the wall clock
+          var lastTime;
+
+          // Animation loop
+          function animate(time){
+              requestAnimationFrame(animate);
+
+              // const canvas = document.getElementsByTagName("canvas")[0].getContext("2d")
+
+              // if (typeof canvas !== "undefined") {
+              //   // clear previous canvas
+              //   canvas.width  = window.innerWidth;
+              //   canvas.height = window.innerHeight;
+              //   console.log("widhtl; " + canvas.width)
+              //   // canvas.clearRect(0, 0, canvas.width, canvas.height)
+              // }
+
+              if (typeof app !== "undefined") {
+                for (var i = app.stage.children.length - 1; i >= 0; i--) {  
+                  app.stage.removeChild(app.stage.children[i])
+                }
+              }
+
+
+
+              // Compute elapsed time since last render frame
+              var deltaTime = lastTime ? (time - lastTime) / 1000 : 0;
+
+              // Move bodies forward in time
+              world.step(fixedTimeStep, deltaTime, maxSubSteps);
+
+              // Render the circle at the current interpolated position
+              let x = circleBody.interpolatedPosition[0]
+              let y = circleBody.interpolatedPosition[1]
+              // console.log("x: " + x + " , y: " + y)
+
+
+              renderCharacter(x, y * 5, 100, 100)
+
+              lastTime = time;
+          }
+
+          // Start the animation loop
+          requestAnimationFrame(animate);
+        }
+
+        var world = new p2.World({
+            gravity: [0, -89.82]
+        })
+
+        var circleBody = new p2.Body({
+            mass: 5,
+            position: [0, 50]
+        });
+
+        // Add a circle shape to the body
+        var circleShape = new p2.Circle({ radius: 1 });
+        circleBody.addShape(circleShape);
+
+        world.addBody(circleBody);
+        // Create an infinite ground plane body
+        var groundBody = new p2.Body({
+            mass: 0 // Setting mass to 0 makes it static
+        });
+        var groundShape = new p2.Plane();
+        groundBody.addShape(groundShape);
+        world.addBody(groundBody);
+
+        runWorldPhysics()
+
+
+      //]]>
+      </script>
+    </body>
+</html>

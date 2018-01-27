@@ -9,10 +9,20 @@
 
         <script src="pixi.js"></script>
         <script src="p2.js"></script>
+        <script src="p2.KinematicCharacterController.js"></script>
 
         <style type="text/css" media="screen">
           body {
             margin: 0px;
+          }
+
+          #debug {
+            position: absolute; 
+            width: 500px; 
+            height: 500px; 
+            z-index: 5; 
+            border: solid 1px red;
+            color: white;
           }
 
           @font-face {
@@ -28,6 +38,8 @@
     </head>
 
     <body>
+      <div id="debug" style=''></div>
+
       <script src='dist/app.js'></script>
     </body>
 </html>

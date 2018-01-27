@@ -4,8 +4,26 @@ class Player {
   constructor(world, x, y) {
     this.world = world
     this.initPhysics(x,y)
+    this.initController()
   
     this.canJump = true
+  }
+
+  initController() {
+    this.controller = new p2.KinematicCharacterController({
+      world: this.world,
+      body: this.body,
+      moveSpeed: 400,
+      collisionMask: this.getCollisionMask(),
+      velocityXSmoothing: 0.0001,
+      timeToJumpApex: 0.4,
+      skinWidth: 0.1,
+      minJumpHeight: 50,
+      maxJumpHeight: 80,
+      wallJumpClimb: [800,800],
+      wallJumpClimb: [800,800],
+      wallLeap: [800,800]
+    })
   }
 
   initPhysics(x,y) {
@@ -18,7 +36,7 @@ class Player {
     this.shape.collisionMask  = this.getCollisionMask()
 
     this.body.addShape(this.shape)
-    this.world.addBody(this.body)
+    // this.world.addBody(this.body)
   }
 
   allowJump() {
@@ -33,24 +51,33 @@ class Player {
   getBodyProperties(x, y) {
     return {
       position: [x, y],
-      mass: 1,
-      damping: 0.5,
-      inertia: 0.4
+      mass: 0,
+      damping: 0,
+      type: p2.Body.KINEMATIC
+      // inertia: 0.4
     }
   }
 
-  update() {
-    const deltaTime = this.world.lastTimeStep
-    this.body.velocity[1] += this.world.gravity[1] * deltaTime;
+  update(deltaTime) {
+    this.controller.update(deltaTime)
+
+    // const deltaTime = this.world.lastTimeStep
+    // this.body.velocity[1] += this.world.gravity[1] * deltaTime;
   }
 
   jump() {
-    console.log("attempt jump: canJump - " + this.canJump)
-    if (!this.canJump) return
+    this.controller.setJumpKeyState(true)
 
-    this.body.velocity[1] += 500  // up
+    // console.log("attempt jump: canJump - " + this.canJump)
+    // if (!this.canJump) return
 
-    this.canJump = false
+    // this.body.velocity[1] += 500  // up
+
+    // this.canJump = false
+  }
+
+  stopJump() {
+    this.controller.setJumpKeyState(false)
   }
 
   walk(direction) {

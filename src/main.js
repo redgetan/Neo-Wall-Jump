@@ -16,14 +16,34 @@ class Main {
   static initControls() {
     window.keyPresses = {}
 
-    document.addEventListener("keyup", (event) => {
-      keyPresses[event.which] = false
-
-
-    })
+    this.left = 0
+    this.right = 0
 
     document.addEventListener("keydown", (event) => {
-      keyPresses[event.which] = true
+      // keyPresses[event.which] = false
+
+
+      switch(event.keyCode){
+        case 39: this.right = 1; break; // right key
+        case 38: this.player.jump(); break; // up key
+        case 37: this.left = 1; break; // left key
+        default:
+      }
+
+      this.player.controller.input[0] = this.right - this.left
+    })
+
+    document.addEventListener("keyup", (event) => {
+      // keyPresses[event.which] = true
+
+      switch(event.keyCode){
+        case 39: this.right = 0; break; // right key
+        case 38: this.player.stopJump(); break; // up key
+        case 37: this.left = 0; break; // left key
+        default:
+      }
+
+      this.player.controller.input[0] = this.right - this.left
     })
   }
 
@@ -49,7 +69,7 @@ class Main {
     }.bind(this))
 
     this.world.on('postStep', function(evt){
-      console.log("postStep")
+      this.player.update(this.world.lastTimeStep)
     }.bind(this))
 
 
@@ -151,8 +171,8 @@ class Main {
 
     // Compute elapsed time since last render frame
     let deltaTime = this.lastTime ? (time - this.lastTime) / 1000 : 0;
-    
-    this.moveObjects()
+
+    // this.moveObjects()
 
     // Move bodies forward in time
     this.world.step(fixedTimeStep, deltaTime, maxSubSteps);
@@ -223,6 +243,24 @@ class Main {
     }
 
     this.renderGround(this.ground.body.position[0], this.ground.body.position[1], this.ground.getWidth(), this.ground.getHeight())
+    this.updateDebugLog()
+  }
+
+  static updateDebugLog() {
+    const player = window.player.controller
+
+    debug.innerHTML = [
+      'player.collisions.above: ' + player.collisions.above,
+      'player.collisions.below: ' + player.collisions.below,
+      'player.collisions.left: ' + player.collisions.left,
+      'player.collisions.right: ' + player.collisions.right,
+      'player.collisions.climbingSlope: ' + player.collisions.climbingSlope,
+      'player.collisions.descendingSlope: ' + player.collisions.descendingSlope,
+      'player.collisions.slopeAngle: ' + player.collisions.slopeAngle,
+      'player.collisions.slopeAngleOld: ' + player.collisions.slopeAngleOld,
+      'player.collisions.faceDir: ' + player.collisions.faceDir,
+      'player.collisions.fallingThroughPlatform: ' + player.collisions.fallingThroughPlatform
+    ].join('<br>');
   }
 
 }

@@ -1,3 +1,5 @@
+const Constants = require("./../constants")
+
 class Ground {
   constructor(world, x, y) {
     this.world = world
@@ -11,10 +13,21 @@ class Ground {
         position: [x,y]
     })
 
+    this.body.entity = this
+
+
     this.shape = new p2.Plane()
+    this.shape.collisionGroup = this.getCollisionGroup()
+    this.shape.collisionMask  = this.getCollisionMask()
+
     this.body.addShape(this.shape)
     this.world.addBody(this.body)
   }
+
+  getCollisionGroup() { return Constants.collisionGroup.Ground }
+  getCollisionMask()  { return Constants.collisionGroup.Player }
+
+  getType() { return this.constructor.name }
   
 }
 

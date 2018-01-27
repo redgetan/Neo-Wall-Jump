@@ -47,6 +47,7 @@ gulp.task('watch', function(cb) {
   var bundler = browserify(paths.entry, watchify.args);
 
   var bundle = function() {
+    console.log("rebuilding app.js")
 
     bundler
       .bundle()

@@ -1,6 +1,7 @@
 const Player = require("./entities/player")
 const Wall   = require("./entities/wall")
 const Ground = require("./entities/ground")
+const Constants = require("./constants")
 
 class Main {
 
@@ -25,19 +26,45 @@ class Main {
   }
 
   static initPhysics() {
-    this.world = new p2.World({
-        gravity: [0, -1000]
+    window.world = this.world = new p2.World({
+        gravity: [0, -1500]
     })
 
     this.world.defaultContactMaterial.friction = 0.9
-    this.world.defaultContactMaterial.restitution = 0.5
+    this.world.defaultContactMaterial.restitution = 0
+
+    this.world.on('beginContact', function (evt){
+      if(evt.bodyA.entity.getCollisionGroup() & evt.bodyB.entity.getCollisionGroup() === 
+          Constants.collisionGroup.Player | Constants.collisionGroup.Wall) {
+        this.onPlayerWallCollide()
+      } 
+
+      if(evt.bodyA.entity.getCollisionGroup() & evt.bodyB.entity.getCollisionGroup() === 
+          Constants.collisionGroup.Player | Constants.collisionGroup.Ground) {
+        this.onPlayerGroundCollide()
+      } 
+    }.bind(this))
+
+    this.world.on('postStep', function(evt){
+      this.moveObjects()
+    }.bind(this))
+
+
 
     this.initEntities()
     this.runWorldPhysics()
   }
 
+  static onPlayerWallCollide() {
+    this.player.allowJump()
+  }
+
+  static onPlayerGroundCollide() {
+    this.player.allowJump()
+  }
+
   static initEntities() {
-    this.player = new Player(this.world, 150, 250)
+    window.player = this.player = new Player(this.world, 150, 250)
     this.ground = new Ground(this.world, 0, 0)
     this.walls  = [
       new Wall(this.world, 30,0),
@@ -120,7 +147,6 @@ class Main {
   }
 
   static postPhysicsStep() {
-    this.moveObjects()
     this.renderObjects()
   }
 
@@ -129,13 +155,9 @@ class Main {
   }
 
   static moveObjects() {
-    const prevPosition = this.player.body.position
-
-    if (keyPresses[37]) prevPosition[0] -= 1  // left
-    if (keyPresses[39]) prevPosition[0] += 1  // right
-    if (keyPresses[38]) prevPosition[1] += 10  // up
-        
-    this.player.body.position = prevPosition
+    if (keyPresses[37]) this.player.walk("left")  
+    if (keyPresses[39]) this.player.walk("right")
+    if (keyPresses[38]) this.player.jump() 
   }
 
   static renderObjects() {

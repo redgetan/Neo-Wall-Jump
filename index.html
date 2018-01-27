@@ -57,6 +57,25 @@
           app.stage.addChild(rectangle)
         }
 
+        const moveObjects = () => {
+          const prevPosition = characterBody.position
+
+          if (keyPresses[37]) prevPosition[0] -= 1  // left
+          if (keyPresses[39]) prevPosition[0] += 1  // right
+          if (keyPresses[38]) prevPosition[1] += 1  // up
+              
+          characterBody.position = prevPosition
+        }
+
+        const renderObjects = () => {
+          // Render the circle at the current interpolated position
+          let x = characterBody.interpolatedPosition[0]
+          let y = characterBody.interpolatedPosition[1]
+          // console.log("x: " + x + " , y: " + y)
+
+          renderCharacter(x, y * 5, 100, 100)
+        }
+
         const runWorldPhysics = () => {
             // To animate the bodies, we must step the world forward in time, using a fixed time step size.
           // The World will run substeps and interpolate automatically for us, to get smooth animation.
@@ -92,13 +111,10 @@
               // Move bodies forward in time
               world.step(fixedTimeStep, deltaTime, maxSubSteps);
 
-              // Render the circle at the current interpolated position
-              let x = circleBody.interpolatedPosition[0]
-              let y = circleBody.interpolatedPosition[1]
-              // console.log("x: " + x + " , y: " + y)
 
-
-              renderCharacter(x, y * 5, 100, 100)
+              // move objects based on user input
+              moveObjects()
+              renderObjects()
 
               lastTime = time;
           }
@@ -111,16 +127,18 @@
             gravity: [0, -89.82]
         })
 
-        var circleBody = new p2.Body({
+        var characterBody = new p2.Body({
             mass: 5,
             position: [0, 50]
         });
 
         // Add a circle shape to the body
         var circleShape = new p2.Circle({ radius: 1 });
-        circleBody.addShape(circleShape);
+        characterBody.addShape(circleShape);
 
-        world.addBody(circleBody);
+        window.c = characterBody
+
+        world.addBody(characterBody);
         // Create an infinite ground plane body
         var groundBody = new p2.Body({
             mass: 0 // Setting mass to 0 makes it static
@@ -131,20 +149,16 @@
 
         runWorldPhysics()
 
+        window.keyPresses = {}
+
+        document.addEventListener("keyup", (event) => {
+          keyPresses[event.which] = false
+        })
+
         document.addEventListener("keydown", (event) => {
-          const prevPosition = circleBody.position
 
-          switch(event.keyCode) {
-            case 37: // left
-              prevPosition[0] -= 1
-              break
-            case 39: // right
-              prevPosition[0] += 1
-              break
-            default:
-          }
 
-          circleBody.position = prevPosition
+          keyPresses[event.which] = true
         })
 
       //]]>

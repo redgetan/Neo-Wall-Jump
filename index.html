@@ -25,6 +25,11 @@
             color: white;
           }
 
+          #score_container {
+            position: absolute;
+            z-index: 4;
+          }
+
           @font-face {
             font-family: 'matrix-code';
             src: url("font/matrix-code.eot?#iefix") format("embedded-opentype"), url("font/matrix-code.woff") format("woff"), url("font/matrix-code.ttf") format("truetype"), url("font/matrix-code.svg#svgFontName") format("svg"); }
@@ -38,7 +43,11 @@
     </head>
 
     <body>
-      <div id="debug" style=''></div>
+      <div id='score_container'>
+        <span class='label'>Score: </span>
+        <span class='value'></span>
+      </div>
+      <!-- <div id="debug_container" style=''></div> -->
 
       <script src='dist/app.js'></script>
     </body>

@@ -114,6 +114,8 @@ class Main {
 
     this.app.stage.position.y = this.app.renderer.height / this.app.renderer.resolution
     this.app.stage.scale.y = -1
+    const stageOffet = 150
+    this.app.stage.position.y -= stageOffet
 
     this.origStageY = this.app.stage.position.y
 
@@ -238,6 +240,7 @@ class Main {
     // this.renderMatrixRain()
 
     this.renderStage()
+    this.renderScore()
 
     this.renderCharacter(this.player.body.position[0], this.player.body.position[1], this.player.getWidth(), this.player.getHeight())
 
@@ -256,10 +259,18 @@ class Main {
     this.app.stage.position.y = this.origStageY + stageYDiff
   }
 
+  static renderScore() {
+    const scoreContainer = document.querySelector("#score_container .value")
+    scoreContainer.innerText = this.player.body.position[1]
+  }
+
   static updateDebugLog() {
     const player = window.player.controller
 
-    debug.innerHTML = [
+    const debugContainer = document.querySelector("debug_container")
+    if (!debugContainer) return
+
+    debugContainer.innerHTML = [
       'player.collisions.above: ' + player.collisions.above,
       'player.collisions.below: ' + player.collisions.below,
       'player.collisions.left: ' + player.collisions.left,

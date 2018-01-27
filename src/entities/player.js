@@ -39,7 +39,13 @@ class Player {
     }
   }
 
+  update() {
+    const deltaTime = this.world.lastTimeStep
+    this.body.velocity[1] += this.world.gravity[1] * deltaTime;
+  }
+
   jump() {
+    console.log("attempt jump: canJump - " + this.canJump)
     if (!this.canJump) return
 
     this.body.velocity[1] += 500  // up
@@ -51,9 +57,9 @@ class Player {
     const prevPosition = this.body.position
 
     if (direction === "left") {
-      prevPosition[0] -= 1
+      this.body.velocity[0] -= 30
     } else if (direction === "right") {
-      prevPosition[0] += 1
+      this.body.velocity[0] += 30
     }
 
     this.body.position = prevPosition

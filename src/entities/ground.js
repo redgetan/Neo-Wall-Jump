@@ -16,7 +16,7 @@ class Ground {
     this.body.entity = this
 
 
-    this.shape = new p2.Plane()
+    this.shape = new p2.Box({ width: this.getWidth(), height: this.getHeight() })
     this.shape.collisionGroup = this.getCollisionGroup()
     this.shape.collisionMask  = this.getCollisionMask()
 
@@ -28,6 +28,9 @@ class Ground {
   getCollisionMask()  { return Constants.collisionGroup.Player }
 
   getType() { return this.constructor.name }
+
+  getWidth() { return 1500 }
+  getHeight() { return 50 }
   
 }
 

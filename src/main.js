@@ -18,6 +18,8 @@ class Main {
 
     document.addEventListener("keyup", (event) => {
       keyPresses[event.which] = false
+
+
     })
 
     document.addEventListener("keydown", (event) => {
@@ -26,6 +28,7 @@ class Main {
   }
 
   static initPhysics() {
+    console.log("initPhysics")
     window.world = this.world = new p2.World({
         gravity: [0, -1500]
     })
@@ -46,7 +49,7 @@ class Main {
     }.bind(this))
 
     this.world.on('postStep', function(evt){
-      this.moveObjects()
+      console.log("postStep")
     }.bind(this))
 
 
@@ -73,7 +76,7 @@ class Main {
   }
 
   static initRenderer() {
-    this.app = new PIXI.Application({
+    window.app = this.app = new PIXI.Application({
       forceCanvas: true
     })
 
@@ -123,11 +126,22 @@ class Main {
     this.app.stage.addChild(rectangle)
   }
 
+  static renderGround(x, y, width, height) {
+    let rectangle = new PIXI.Graphics()
+    rectangle.beginFill(0x0000FF)
+    // rectangle.lineStyle(4, 0xFF3300, 1)
+
+    const lowerLeftX = x - width/2
+    const lowerLeftY = y - height/2
+
+    rectangle.drawRect(lowerLeftX, lowerLeftY, width, height)
+    rectangle.endFill()
+    this.app.stage.addChild(rectangle)
+  }
+
   static physicsLoop(time) {
     const fixedTimeStep = 1 / 60
     const maxSubSteps = 10
-
-    requestAnimationFrame(this.physicsLoopListener);
 
     if (typeof this.app !== "undefined") {
       for (var i = this.app.stage.children.length - 1; i >= 0; i--) {  
@@ -137,6 +151,8 @@ class Main {
 
     // Compute elapsed time since last render frame
     let deltaTime = this.lastTime ? (time - this.lastTime) / 1000 : 0;
+    
+    this.moveObjects()
 
     // Move bodies forward in time
     this.world.step(fixedTimeStep, deltaTime, maxSubSteps);
@@ -144,6 +160,8 @@ class Main {
     this.postPhysicsStep()
 
     this.lastTime = time
+
+    requestAnimationFrame(this.physicsLoopListener);
   }
 
   static postPhysicsStep() {
@@ -158,15 +176,53 @@ class Main {
     if (keyPresses[37]) this.player.walk("left")  
     if (keyPresses[39]) this.player.walk("right")
     if (keyPresses[38]) this.player.jump() 
+
+    // this.player.update()
+  }
+
+  static renderMatrixRain() {
+    let letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '$', '+', '-', '*', '/', '=', '%', '"', '\'', '#', '&', '_', '(', ')', ',', '.', ';', ':', '?', '!', '\\', '|', '{', '}', '<', '>', '[', ']', '^', '~']
+    let yPos = 200
+    for (var i = 0; i < 10; i++) {
+      let rdx = Math.floor(Math.random() * letters.length)
+      let letter = letters[rdx]
+      this.renderMatrixDroplet(letter, yPos)
+      yPos -= 20
+    }
+  }
+
+  static renderMatrixDroplet(characterText, yPos) {
+    let strength = 100
+
+    let style = new PIXI.TextStyle({
+      fontFamily: "matrix-code",
+      fontSize: 36,
+      fill: "hsla(104, 79%, 74%, " + strength + ")",
+      strokeThickness: 2,
+      dropShadow: true,
+      dropShadowColor: "hsl(104, 79%, 74%)",
+      dropShadowBlur: 2,
+      dropShadowAngle: Math.PI / 6,
+      dropShadowDistance: 1,
+    })
+
+    let char = new PIXI.Text(characterText, style)
+    char.position.set(200, yPos)
+    window.char = char
+    this.app.stage.addChild(char)
   }
 
   static renderObjects() {
+    // this.renderMatrixRain()
+
     this.renderCharacter(this.player.body.position[0], this.player.body.position[1], this.player.getWidth(), this.player.getHeight())
 
     for (var i = 0; i < this.walls.length; i++) {
       let wall = this.walls[i]
       this.renderWall(wall.body.position[0], wall.body.position[1], wall.getWidth(), wall.getHeight())
     }
+
+    this.renderGround(this.ground.body.position[0], this.ground.body.position[1], this.ground.getWidth(), this.ground.getHeight())
   }
 
 }

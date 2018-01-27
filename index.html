@@ -52,7 +52,24 @@
           let rectangle = new PIXI.Graphics()
           rectangle.beginFill(0x66CCFF)
           rectangle.lineStyle(4, 0xFF3300, 1)
-          rectangle.drawRect(x, y, width, height)
+          
+          const lowerLeftX = x - width/2
+          const lowerLeftY = y - height/2
+
+          rectangle.drawRect(lowerLeftX, lowerLeftY, width, height)
+          rectangle.endFill()
+          app.stage.addChild(rectangle)
+        }
+
+        const renderWall = (x, y, width, height) => {
+          let rectangle = new PIXI.Graphics()
+          rectangle.beginFill(0x00FF00)
+          // rectangle.lineStyle(4, 0xFF3300, 1)
+
+          const lowerLeftX = x - width/2
+          const lowerLeftY = y - height/2
+
+          rectangle.drawRect(lowerLeftX, lowerLeftY, width, height)
           rectangle.endFill()
           app.stage.addChild(rectangle)
         }
@@ -62,18 +79,34 @@
 
           if (keyPresses[37]) prevPosition[0] -= 1  // left
           if (keyPresses[39]) prevPosition[0] += 1  // right
-          if (keyPresses[38]) prevPosition[1] += 1  // up
+          if (keyPresses[38]) prevPosition[1] += 10  // up
               
           characterBody.position = prevPosition
         }
 
         const renderObjects = () => {
-          // Render the circle at the current interpolated position
-          let x = characterBody.interpolatedPosition[0]
-          let y = characterBody.interpolatedPosition[1]
-          // console.log("x: " + x + " , y: " + y)
+          console.log("position: " + character.body.position[1])
+          renderCharacter(character.body.position[0], character.body.position[1], character.width, character.height)
 
-          renderCharacter(x, y * 5, 100, 100)
+          for (var i = 0; i < walls.length; i++) {
+            let wall = walls[i]
+            renderWall(wall.body.position[0], wall.body.position[1], wall.width, wall.height)
+          }
+        }
+
+        const walls = []
+
+        const createWall = (x, y) => {
+          // Create an infinite ground plane body
+          var body = new p2.Body({
+              mass: 0, // Setting mass to 0 makes it static,
+              position: [x,y]
+          });
+          var shape = new p2.Box({ width: 150, height: 1500})
+          body.addShape(shape);
+          world.addBody(body);
+
+          walls.push(shape)
         }
 
         const runWorldPhysics = () => {
@@ -124,21 +157,28 @@
         }
 
         var world = new p2.World({
-            gravity: [0, -89.82]
+            gravity: [0, -1000]
         })
 
+        world.defaultContactMaterial.friction = 0.9
+        world.defaultContactMaterial.restitution = 0.5
+
+
         var characterBody = new p2.Body({
-            mass: 5,
-            position: [0, 50]
+            position: [150, 250],
+            mass: 1,
+            damping: 0.999,
+            inertia: 0.4
         });
 
         // Add a circle shape to the body
-        var circleShape = new p2.Circle({ radius: 1 });
-        characterBody.addShape(circleShape);
+        var character = new p2.Box({ width: 100, height: 100 });
+        characterBody.addShape(character);
 
         window.c = characterBody
 
         world.addBody(characterBody);
+
         // Create an infinite ground plane body
         var groundBody = new p2.Body({
             mass: 0 // Setting mass to 0 makes it static
@@ -146,6 +186,9 @@
         var groundShape = new p2.Plane();
         groundBody.addShape(groundShape);
         world.addBody(groundBody);
+
+        createWall(30,0)
+        createWall(window.innerWidth - 30, 0)
 
         runWorldPhysics()
 

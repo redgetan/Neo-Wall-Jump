@@ -1,18 +1,19 @@
 8 hours left
 
-[ ] walls are gonna a stream of matrix like characters instead of green
-  [ ] falling characters blocks that player can jump off (1 hour)
 [ ] score screen (30 min)
   [ ] 
 [ ] homescreen  (30 min)
   [ ] telephone booth pixel
 [ ] character green circle highlight (10 min)
-[ ] can do multiple wall jumps  (2 hours??)
-  [ ] fix bug where im hanging in midair
-  [ ] multiple wall jumps should work smoothly
+[x] can do multiple wall jumps  (2 hours??)
+  [x] fix bug where im hanging in midair
+  [x] multiple wall jumps should work smoothly
 
 [ ] height 5000 - reach the top (30 min)
   [ ] winning condition
   [ ] screen (you win)
 
 [ ] metroid/megaman spritesheet (black+green) - 1 hour
+
+[ ] walls are gonna a stream of matrix like characters instead of green
+  [ ] falling characters blocks that player can jump off (1 hour)

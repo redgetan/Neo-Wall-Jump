@@ -115,6 +115,8 @@ class Main {
     this.app.stage.position.y = this.app.renderer.height / this.app.renderer.resolution
     this.app.stage.scale.y = -1
 
+    this.origStageY = this.app.stage.position.y
+
     //Add the canvas that Pixi automatically created for you to the HTML document
     document.body.appendChild(this.app.view)
   }
@@ -235,6 +237,8 @@ class Main {
   static renderObjects() {
     // this.renderMatrixRain()
 
+    this.renderStage()
+
     this.renderCharacter(this.player.body.position[0], this.player.body.position[1], this.player.getWidth(), this.player.getHeight())
 
     for (var i = 0; i < this.walls.length; i++) {
@@ -244,6 +248,12 @@ class Main {
 
     this.renderGround(this.ground.body.position[0], this.ground.body.position[1], this.ground.getWidth(), this.ground.getHeight())
     this.updateDebugLog()
+  }
+
+  static renderStage() {
+    const playerStandingYPosition = (this.player.getHeight() / 2) + (this.ground.getHeight() / 2)
+    const stageYDiff = this.player.body.position[1] - playerStandingYPosition
+    this.app.stage.position.y = this.origStageY + stageYDiff
   }
 
   static updateDebugLog() {

@@ -131,14 +131,21 @@
 
         runWorldPhysics()
 
-
-        setInterval(() => {
+        document.addEventListener("keydown", (event) => {
           const prevPosition = circleBody.position
-          prevPosition[0] += 1
+
+          switch(event.keyCode) {
+            case 37: // left
+              prevPosition[0] -= 1
+              break
+            case 39: // right
+              prevPosition[0] += 1
+              break
+            default:
+          }
 
           circleBody.position = prevPosition
-        }, 1000/60)
-
+        })
 
       //]]>
       </script>

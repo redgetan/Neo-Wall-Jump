@@ -87,8 +87,8 @@ class Main {
   }
 
   static initEntities() {
-    window.player = this.player = new Player(this.world, 150, 250)
-    this.ground = new Ground(this.world, 0, 0)
+    window.player = this.player = new Player(this.world, 150, 0)
+    window.ground = this.ground = new Ground(this.world, 0, -150)
     this.walls  = [
       new Wall(this.world, 30,0),
       new Wall(this.world, window.innerWidth - 30, 0)
@@ -261,7 +261,7 @@ class Main {
 
   static renderScore() {
     const scoreContainer = document.querySelector("#score_container .value")
-    scoreContainer.innerText = this.player.body.position[1]
+    scoreContainer.innerText = Math.floor(this.player.getMaxHeightReached() / 100) + " ft"
   }
 
   static updateDebugLog() {

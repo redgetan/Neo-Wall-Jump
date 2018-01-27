@@ -30,7 +30,7 @@ class Ground {
   getType() { return this.constructor.name }
 
   getWidth() { return 1500 }
-  getHeight() { return 50 }
+  getHeight() { return 150 }
   
 }
 

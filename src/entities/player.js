@@ -6,6 +6,7 @@ class Player {
     this.initPhysics(x,y)
     this.initController()
   
+    this.maxHeightReached = 0
     this.canJump = true
   }
 
@@ -61,9 +62,13 @@ class Player {
   update(deltaTime) {
     this.controller.update(deltaTime)
 
+    this.maxHeightReached = Math.max(this.maxHeightReached, Math.floor(this.body.position[1]))
+
     // const deltaTime = this.world.lastTimeStep
     // this.body.velocity[1] += this.world.gravity[1] * deltaTime;
   }
+
+  getMaxHeightReached() { return this.maxHeightReached }
 
   jump() {
     this.controller.setJumpKeyState(true)

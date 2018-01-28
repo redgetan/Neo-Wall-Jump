@@ -25,6 +25,7 @@ class Player {
     this.spriteSheetImage  = PIXI.BaseTexture.fromImage("neo_black_spritesheet.png")
     this.sprite = new PIXI.extras.AnimatedSprite(this.getWalkRightTextures())
     this.sprite.animationSpeed = 0.2
+    this.sprite.anchor.set(0.5)
     this.sprite.scale.y = -1
   }
 
@@ -138,7 +139,7 @@ class Player {
 
     this.maxHeightReached = Math.max(this.maxHeightReached, Math.floor(this.body.position[1]))
 
-    console.log("state: " + this.state + " ")
+    // console.log("state: " + this.state + " ")
     if (this.controller.input[0] > 0 && this.state !== "walk_right" && this.controller.collisions.below === true) {
       this.state = "walk_right"
       // walk right
@@ -199,8 +200,8 @@ class Player {
 
   }
 
-  getWidth() { return 100 }
-  getHeight() { return 100 }
+  getWidth() { return 40 }
+  getHeight() { return 60 }
 }
 
 module.exports = Player

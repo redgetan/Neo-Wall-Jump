@@ -9,7 +9,7 @@ Usage
 
 Credits
 --------
-Reginald Tan (Programming + Gameplay)
-Dhruv Chaudhary (Audio)
-Sathes Bala (Gameplay)
+- Reginald Tan (Programming + Gameplay)
+- Dhruv Chaudhary (Audio)
+- Sathes Bala (Gameplay)
 

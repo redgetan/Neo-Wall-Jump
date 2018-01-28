@@ -727,7 +727,10 @@
 				let prevXVel = velocity[0]
 
 				if (wallSliding) {
-					console.log("wallSliding..")
+					if (typeof this.onJumpOffWall !== "undefined") {
+						this.onJumpOffWall()
+					}
+					// console.log("wallSliding..")
 					// if (wallDirX === input[0]) {
 					// 	velocity[0] = -wallDirX * this.wallJumpClimb[0];
 					// 	velocity[1] = this.wallJumpClimb[1];
@@ -743,8 +746,6 @@
 				if (controller.collisions.below) {
 					velocity[1] = this.maxJumpVelocity;
 				}
-				
-				console.log("velocityX after jump: " + velocity[1])
 
 			}
 

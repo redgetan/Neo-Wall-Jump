@@ -19,6 +19,13 @@ class Player {
     this.right = 0
 
     this.initSprite()
+    this.initSound()
+  }
+
+  initSound() {
+    this.jumpSound = new Howl({
+      src: ['jump.mp3']
+    })
   }
 
   initSprite() {
@@ -100,6 +107,8 @@ class Player {
       wallJumpOff: [800, 800],
       wallLeap: [800,800]
     })
+
+    this.controller.onJumpOffWall = this.onJumpOffWall.bind(this)
   }
 
   initPhysics(x,y) {
@@ -120,7 +129,7 @@ class Player {
   }
 
   getCollisionGroup() { return Constants.collisionGroup.Player }
-  getCollisionMask()  { return Constants.collisionGroup.Wall | Constants.collisionGroup.Ground }
+  getCollisionMask()  { return Constants.collisionGroup.Wall | Constants.collisionGroup.Ground | Constants.collisionGroup.Obstacle }
 
   getType() { return this.constructor.name }
 
@@ -177,7 +186,11 @@ class Player {
 
   jump() {
     this.controller.setJumpKeyState(true)
+  }
 
+  onJumpOffWall() {
+    console.log("jump key...")
+    this.jumpSound.play()
   }
 
   stopJump() {

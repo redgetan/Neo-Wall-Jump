@@ -1,6 +1,7 @@
 const Player = require("./entities/player")
 const Wall   = require("./entities/wall")
 const Ground = require("./entities/ground")
+const Obstacle = require("./entities/obstacle")
 const Constants = require("./constants")
 
 class Main {
@@ -9,12 +10,30 @@ class Main {
     this.physicsLoopListener = this.physicsLoop.bind(this)
 
     this.initRenderer()
+    this.initSound()
     this.initPhysics()
     this.initControls()
   }
 
+  static initSound() {
+    this.bgSound = new Howl({
+      src: ['background.mp3'],
+      loop: true
+    })
+
+    // this.bgSound.play()
+  }
+
   static initControls() {
     window.keyPresses = {}
+
+    document.addEventListener("keypress", (event) => {
+        console.log("keypress")
+      if (event.which === 38) {
+        console.log("keypress")
+        this.player.jumpSound.play()
+      }
+    })
 
     document.addEventListener("keydown", (event) => {
       // keyPresses[event.which] = false
@@ -63,10 +82,17 @@ class Main {
           Constants.collisionGroup.Player | Constants.collisionGroup.Ground) {
         this.onPlayerGroundCollide()
       } 
+
+      console.log("A: " + evt.bodyA.entity.getCollisionGroup() + " B: " + evt.bodyB.entity.getCollisionGroup())
+      if(evt.bodyA.entity.getCollisionGroup() & evt.bodyB.entity.getCollisionGroup() === 
+          Constants.collisionGroup.Player | Constants.collisionGroup.Obstacle) {
+        this.onPlayerObstacleCollide()
+      } 
     }.bind(this))
 
     this.world.on('postStep', function(evt){
       this.player.update(this.world.lastTimeStep)
+      this.makeObstaclesFall()
       this.renderObjects()
     }.bind(this))
 
@@ -76,12 +102,39 @@ class Main {
     this.runWorldPhysics()
   }
 
+  static makeObstaclesFall() {
+    for (var i = 0; i < this.obstacles.length; i++) {
+      let obstacle = this.obstacles[i]
+      obstacle.body.position[1] -= 3
+    }
+  }
+
   static onPlayerWallCollide() {
-    this.player.allowJump()
+    console.log("player wall collide..")
+    // this.player.allowJump()
   }
 
   static onPlayerGroundCollide() {
-    this.player.allowJump()
+    // this.player.allowJump()
+  }
+
+  static onPlayerObstacleCollide() {
+    console.log("hit obstacle..")
+  }
+
+  static createObstacles() {
+    const leftWallXMax = 128
+    const rightWallXMin = Constants.game.width - 128
+    for (var i = 0; i < 5; i++) {
+      let x = this.randomBetween(leftWallXMax + 64, rightWallXMin - 64)
+      let y = this.randomBetween(500, 1000)
+      let obstacle = new Obstacle(this.world, x, y)
+      this.obstacles.push(obstacle)
+    }
+  }
+
+  static randomBetween(min, max) {
+    return Math.floor(Math.random() * max) + min 
   }
 
   static initEntities() {
@@ -89,6 +142,15 @@ class Main {
     this.app.stage.addChild(this.player.sprite)
 
     window.ground = this.ground = new Ground(this.world, window.innerWidth / 2, -100)
+
+    window.obstacles = this.obstacles = []
+    this.createObstacles()
+
+    for (var i = 0; i < this.obstacles.length; i++) {
+      let obstacle = this.obstacles[i]
+      this.app.stage.addChild(obstacle.sprite)
+    }
+
     this.walls  = [
       new Wall(this.world, 64,0),
       new Wall(this.world, Constants.game.width - 64, 0)
@@ -134,33 +196,11 @@ class Main {
 
 
   static renderPlayer(x, y, width, height) {
-    // let rectangle = new PIXI.Graphics()
-    // rectangle.beginFill(0x66CCFF)
-    // rectangle.lineStyle(4, 0xFF3300, 1)
-    
-    // const lowerLeftX = x - width/2
-    // const lowerLeftY = y - height/2
-
-    // rectangle.drawRect(lowerLeftX, lowerLeftY, width, height)
-    // rectangle.endFill()
-    // this.app.stage.addChild(rectangle)
-
     this.player.sprite.x = x
     this.player.sprite.y = y
   }
 
   static renderWall(x, y, width, height) {
-    let rectangle = new PIXI.Graphics()
-    rectangle.beginFill(0x00FF00)
-    // rectangle.lineStyle(4, 2dbb55, 1)
-
-    const lowerLeftX = x - width/2
-    const lowerLeftY = y - height/2
-
-    rectangle.drawRect(lowerLeftX, lowerLeftY, width, height)
-    rectangle.endFill()
-
-    // let texture = PIXI.Texture.fromImage('assets/image.png')
     let texture = PIXI.Texture.fromImage('wall.png')
 
     var sprite = new PIXI.extras.TilingSprite(texture,width,height)
@@ -171,17 +211,11 @@ class Main {
     this.app.stage.addChild(sprite)
   }
 
+  static renderObstacle(obstacle, x, y, width, height) {
+    obstacle.sprite.position.set(x,y)
+  }
+
   static renderGround(x, y, width, height) {
-    // let rectangle = new PIXI.Graphics()
-    // rectangle.beginFill(0x0000FF)
-    // // rectangle.lineStyle(4, 0xFF3300, 1)
-
-    // const lowerLeftX = x - width/2
-    // const lowerLeftY = y - height/2
-
-    // rectangle.drawRect(lowerLeftX, lowerLeftY, width, height)
-    // rectangle.endFill()
-
     let texture = PIXI.Texture.fromImage('wall.png')
 
     var sprite = new PIXI.extras.TilingSprite(texture,width,height)
@@ -256,6 +290,10 @@ class Main {
     this.renderScore()
 
     this.renderPlayer(this.player.body.position[0], this.player.body.position[1], this.player.getWidth(), this.player.getHeight())
+    for (var i = 0; i < this.obstacles.length; i++) {
+      let obstacle = this.obstacles[i]
+      this.renderObstacle(obstacle, obstacle.body.position[0], obstacle.body.position[1], obstacle.getWidth(), obstacle.getHeight())
+    }
 
     this.updateDebugLog()
   }

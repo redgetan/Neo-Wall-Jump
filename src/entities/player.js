@@ -46,7 +46,7 @@ class Player {
 
   getJumpLeftTextures() {
     if (!this.textures["jump_left"]) {
-      this.textures["jump_left"] = this.extractTextures(10, 19, { isReversed: true })
+      this.textures["jump_left"] = this.extractTextures(10, 18, { isReversed: true })
     }
 
     return this.textures["jump_left"]
@@ -54,7 +54,7 @@ class Player {
 
   getJumpRightTextures() {
     if (!this.textures["jump_right"]) {
-      this.textures["jump_right"] = this.extractTextures(20, 29)
+      this.textures["jump_right"] = this.extractTextures(20, 28)
     }
 
     return this.textures["jump_right"]
@@ -138,19 +138,35 @@ class Player {
 
     this.maxHeightReached = Math.max(this.maxHeightReached, Math.floor(this.body.position[1]))
 
-    if (this.controller.input[0] > 0 && this.state !== "walk_right") {
+    console.log("state: " + this.state + " ")
+    if (this.controller.input[0] > 0 && this.state !== "walk_right" && this.controller.collisions.below === true) {
       this.state = "walk_right"
       // walk right
       this.sprite.textures = this.getWalkRightTextures()
       this.sprite.play()
-    } else if (this.controller.input[0] < 0 && this.state !== "walk_left") {
+    } else if (this.controller.input[0] < 0 && this.state !== "walk_left" && this.controller.collisions.below === true) {
       this.state = "walk_left"
       // walk right
       // walk left
       this.sprite.textures = this.getWalkLeftTextures()
       this.sprite.play()
-    } else if (this.controller.input[0] === 0 && this.state !== "stop") {
+    } else if (this.controller.collisions.below === false && this.state !== "jump") {
+      this.state = "jump"
+
+      if (this.controller.faceDir === 1) {
+        this.sprite.textures = this.getJumpRightTextures()
+      } else {
+        this.sprite.textures = this.getJumpLeftTextures()
+      }
+
+      this.sprite.play()
+    } else if (this.controller.input[0] === 0 && this.state !== "stop" && this.controller.collisions.below === true) {
       this.state = "stop"
+      if (this.controller.faceDir === 1) {
+        this.sprite.textures = this.getWalkRightTextures()
+      } else {
+        this.sprite.textures = this.getWalkLeftTextures()
+      }
       this.sprite.gotoAndStop(0)
     }
 

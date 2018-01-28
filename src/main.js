@@ -8,42 +8,39 @@ class Main {
   static run() {
     this.physicsLoopListener = this.physicsLoop.bind(this)
 
-    this.initPhysics()
     this.initRenderer()
+    this.initPhysics()
     this.initControls()
   }
 
   static initControls() {
     window.keyPresses = {}
 
-    this.left = 0
-    this.right = 0
-
     document.addEventListener("keydown", (event) => {
       // keyPresses[event.which] = false
 
 
       switch(event.keyCode){
-        case 39: this.right = 1; break; // right key
+        case 39: this.player.right = 1; break; // right key
         case 38: this.player.jump(); break; // up key
-        case 37: this.left = 1; break; // left key
+        case 37: this.player.left = 1; break; // left key
         default:
       }
 
-      this.player.controller.input[0] = this.right - this.left
+      this.player.controller.input[0] = this.player.right - this.player.left
     })
 
     document.addEventListener("keyup", (event) => {
       // keyPresses[event.which] = true
 
       switch(event.keyCode){
-        case 39: this.right = 0; break; // right key
+        case 39: this.player.right = 0; break; // right key
         case 38: this.player.stopJump(); break; // up key
-        case 37: this.left = 0; break; // left key
+        case 37: this.player.left = 0; break; // left key
         default:
       }
 
-      this.player.controller.input[0] = this.right - this.left
+      this.player.controller.input[0] = this.player.right - this.player.left
     })
   }
 
@@ -70,6 +67,7 @@ class Main {
 
     this.world.on('postStep', function(evt){
       this.player.update(this.world.lastTimeStep)
+      this.renderObjects()
     }.bind(this))
 
 
@@ -87,17 +85,28 @@ class Main {
   }
 
   static initEntities() {
-    window.player = this.player = new Player(this.world, 150, 50)
-    window.ground = this.ground = new Ground(this.world, 0, -100)
+    window.player = this.player = new Player(this.world, 250, 50)
+    this.app.stage.addChild(this.player.sprite)
+
+    window.ground = this.ground = new Ground(this.world, window.innerWidth / 2, -100)
     this.walls  = [
-      new Wall(this.world, 30,0),
-      new Wall(this.world, window.innerWidth - 30, 0)
+      new Wall(this.world, 64,0),
+      new Wall(this.world, Constants.game.width - 64, 0)
     ]
+
+    for (var i = 0; i < this.walls.length; i++) {
+      let wall = this.walls[i]
+      this.renderWall(wall.body.position[0], wall.body.position[1], wall.getWidth(), wall.getHeight())
+    }
+
+    this.renderGround(this.ground.body.position[0], this.ground.body.position[1], this.ground.getWidth(), this.ground.getHeight())
   }
 
   static initRenderer() {
     window.app = this.app = new PIXI.Application({
-      forceCanvas: true
+      forceCanvas: true,
+      width: Constants.game.width,
+      height: window.innerHeight
     })
 
     let type = "WebGL"
@@ -109,8 +118,8 @@ class Main {
 
     this.app.renderer.view.style.position = "absolute"
     this.app.renderer.view.style.display = "block"
-    this.app.renderer.autoResize = true
-    this.app.renderer.resize(window.innerWidth, window.innerHeight)
+    // this.app.renderer.autoResize = true
+    // this.app.renderer.resize(window.innerWidth, window.innerHeight)
 
     this.app.stage.position.y = this.app.renderer.height / this.app.renderer.resolution
     this.app.stage.scale.y = -1
@@ -124,43 +133,63 @@ class Main {
   }
 
 
-  static renderCharacter(x, y, width, height) {
-    let rectangle = new PIXI.Graphics()
-    rectangle.beginFill(0x66CCFF)
-    rectangle.lineStyle(4, 0xFF3300, 1)
+  static renderPlayer(x, y, width, height) {
+    // let rectangle = new PIXI.Graphics()
+    // rectangle.beginFill(0x66CCFF)
+    // rectangle.lineStyle(4, 0xFF3300, 1)
     
-    const lowerLeftX = x - width/2
-    const lowerLeftY = y - height/2
+    // const lowerLeftX = x - width/2
+    // const lowerLeftY = y - height/2
 
-    rectangle.drawRect(lowerLeftX, lowerLeftY, width, height)
-    rectangle.endFill()
-    this.app.stage.addChild(rectangle)
+    // rectangle.drawRect(lowerLeftX, lowerLeftY, width, height)
+    // rectangle.endFill()
+    // this.app.stage.addChild(rectangle)
+
+    this.player.sprite.x = x
+    this.player.sprite.y = y
   }
 
   static renderWall(x, y, width, height) {
     let rectangle = new PIXI.Graphics()
     rectangle.beginFill(0x00FF00)
-    // rectangle.lineStyle(4, 0xFF3300, 1)
+    // rectangle.lineStyle(4, 2dbb55, 1)
 
     const lowerLeftX = x - width/2
     const lowerLeftY = y - height/2
 
     rectangle.drawRect(lowerLeftX, lowerLeftY, width, height)
     rectangle.endFill()
-    this.app.stage.addChild(rectangle)
+
+    // let texture = PIXI.Texture.fromImage('assets/image.png')
+    let texture = PIXI.Texture.fromImage('wall.png')
+
+    var sprite = new PIXI.extras.TilingSprite(texture,width,height)
+
+    sprite.anchor.set(0.5)
+    sprite.position.set(x,y)
+
+    this.app.stage.addChild(sprite)
   }
 
   static renderGround(x, y, width, height) {
-    let rectangle = new PIXI.Graphics()
-    rectangle.beginFill(0x0000FF)
-    // rectangle.lineStyle(4, 0xFF3300, 1)
+    // let rectangle = new PIXI.Graphics()
+    // rectangle.beginFill(0x0000FF)
+    // // rectangle.lineStyle(4, 0xFF3300, 1)
 
-    const lowerLeftX = x - width/2
-    const lowerLeftY = y - height/2
+    // const lowerLeftX = x - width/2
+    // const lowerLeftY = y - height/2
 
-    rectangle.drawRect(lowerLeftX, lowerLeftY, width, height)
-    rectangle.endFill()
-    this.app.stage.addChild(rectangle)
+    // rectangle.drawRect(lowerLeftX, lowerLeftY, width, height)
+    // rectangle.endFill()
+
+    let texture = PIXI.Texture.fromImage('wall.png')
+
+    var sprite = new PIXI.extras.TilingSprite(texture,width,height)
+
+    sprite.anchor.set(0.5)
+    sprite.position.set(x,y)
+
+    this.app.stage.addChild(sprite)
   }
 
   static physicsLoop(time) {
@@ -169,45 +198,29 @@ class Main {
 
     if (typeof this.app !== "undefined") {
       for (var i = this.app.stage.children.length - 1; i >= 0; i--) {  
-        this.app.stage.removeChild(this.app.stage.children[i])
+        // this.app.stage.removeChild(this.app.stage.children[i])
       }
     }
 
     // Compute elapsed time since last render frame
     let deltaTime = this.lastTime ? (time - this.lastTime) / 1000 : 0;
 
-    // this.moveObjects()
-
     // Move bodies forward in time
     this.world.step(fixedTimeStep, deltaTime, maxSubSteps);
-
-    this.postPhysicsStep()
 
     this.lastTime = time
 
     requestAnimationFrame(this.physicsLoopListener);
   }
 
-  static postPhysicsStep() {
-    this.renderObjects()
-  }
-
   static runWorldPhysics() {
     requestAnimationFrame(this.physicsLoopListener)
-  }
-
-  static moveObjects() {
-    if (keyPresses[37]) this.player.walk("left")  
-    if (keyPresses[39]) this.player.walk("right")
-    if (keyPresses[38]) this.player.jump() 
-
-    // this.player.update()
   }
 
   static renderMatrixRain() {
     let letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '$', '+', '-', '*', '/', '=', '%', '"', '\'', '#', '&', '_', '(', ')', ',', '.', ';', ':', '?', '!', '\\', '|', '{', '}', '<', '>', '[', ']', '^', '~']
     let yPos = 200
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 1; i++) {
       let rdx = Math.floor(Math.random() * letters.length)
       let letter = letters[rdx]
       this.renderMatrixDroplet(letter, yPos)
@@ -242,14 +255,8 @@ class Main {
     this.renderStage()
     this.renderScore()
 
-    this.renderCharacter(this.player.body.position[0], this.player.body.position[1], this.player.getWidth(), this.player.getHeight())
+    this.renderPlayer(this.player.body.position[0], this.player.body.position[1], this.player.getWidth(), this.player.getHeight())
 
-    for (var i = 0; i < this.walls.length; i++) {
-      let wall = this.walls[i]
-      this.renderWall(wall.body.position[0], wall.body.position[1], wall.getWidth(), wall.getHeight())
-    }
-
-    this.renderGround(this.ground.body.position[0], this.ground.body.position[1], this.ground.getWidth(), this.ground.getHeight())
     this.updateDebugLog()
   }
 
@@ -270,7 +277,7 @@ class Main {
   static updateDebugLog() {
     const player = window.player.controller
 
-    const debugContainer = document.querySelector("debug_container")
+    const debugContainer = document.querySelector("#debug_container")
     if (!debugContainer) return
 
     debugContainer.innerHTML = [

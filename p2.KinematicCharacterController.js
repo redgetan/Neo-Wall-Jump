@@ -728,16 +728,16 @@
 
 				if (wallSliding) {
 					console.log("wallSliding..")
-					if (wallDirX === input[0]) {
-						velocity[0] = -wallDirX * this.wallJumpClimb[0];
-						velocity[1] = this.wallJumpClimb[1];
-					} else if (input[0] === 0) {
-						velocity[0] = -wallDirX * this.wallJumpOff[0];
-						velocity[1] = this.wallJumpOff[1];
-					} else {
+					// if (wallDirX === input[0]) {
+					// 	velocity[0] = -wallDirX * this.wallJumpClimb[0];
+					// 	velocity[1] = this.wallJumpClimb[1];
+					// } else if (input[0] === 0) {
+						// velocity[0] = -wallDirX * this.wallJumpOff[0];
+						// velocity[1] = this.wallJumpOff[1];
+					// } else {
 						velocity[0] = -wallDirX * this.wallLeap[0];
 						velocity[1] = this.wallLeap[1];
-					}
+					// }
 				}
 
 				if (controller.collisions.below) {

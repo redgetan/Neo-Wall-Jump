@@ -1,10 +1,11 @@
 8 hours left
 
+[ ] jumper
 [ ] score screen (30 min)
   [ ] 
 [ ] homescreen  (30 min)
   [ ] telephone booth pixel
-[ ] character green circle highlight (10 min)
+
 [x] can do multiple wall jumps  (2 hours??)
   [x] fix bug where im hanging in midair
   [x] multiple wall jumps should work smoothly

@@ -5,9 +5,82 @@ class Player {
     this.world = world
     this.initPhysics(x,y)
     this.initController()
+
+    this.spriteWidth = 40
+    this.spriteHeight = 60
+    this.spriteSheetRowCount = 10
+
+    this.textures = {}
   
     this.maxHeightReached = 0
     this.canJump = true
+
+    this.left = 0
+    this.right = 0
+
+    this.initSprite()
+  }
+
+  initSprite() {
+    this.spriteSheetImage  = PIXI.BaseTexture.fromImage("neo_black_spritesheet.png")
+    this.sprite = new PIXI.extras.AnimatedSprite(this.getWalkRightTextures())
+    this.sprite.animationSpeed = 0.2
+    this.sprite.scale.y = -1
+  }
+
+  getWalkRightTextures() {
+    if (!this.textures["walk_right"]) {
+      this.textures["walk_right"] = this.extractTextures(0, 4)
+    }
+
+    return this.textures["walk_right"]
+  }
+
+  getWalkLeftTextures() {
+    if (!this.textures["walk_left"]) {
+      this.textures["walk_left"] = this.extractTextures(5, 9, { isReversed: true })
+    }
+
+    return this.textures["walk_left"]
+  }
+
+  getJumpLeftTextures() {
+    if (!this.textures["jump_left"]) {
+      this.textures["jump_left"] = this.extractTextures(10, 19, { isReversed: true })
+    }
+
+    return this.textures["jump_left"]
+  }
+
+  getJumpRightTextures() {
+    if (!this.textures["jump_right"]) {
+      this.textures["jump_right"] = this.extractTextures(20, 29)
+    }
+
+    return this.textures["jump_right"]
+  }
+
+  extractTextures(start, stop, isReversed) {
+    let textures = []
+
+    for (var i = start; i <= stop; i++) {
+      let row = Math.floor(i / this.spriteSheetRowCount)
+      let col = i % this.spriteSheetRowCount
+
+      let x = col * this.spriteWidth
+      let y = row * this.spriteHeight
+
+      let rectange = new PIXI.Rectangle(x, y, this.spriteWidth, this.spriteHeight)
+      let texture = new PIXI.Texture(this.spriteSheetImage, rectange)
+
+      textures.push(texture)
+    }
+
+    if (isReversed) {
+      textures.reverse()
+    }
+
+    return textures
   }
 
   initController() {
@@ -21,8 +94,9 @@ class Player {
       skinWidth: 0.1,
       minJumpHeight: 50,
       maxJumpHeight: 80,
+      wallSlideSpeedMax: 10000,
       wallJumpClimb: [800,800],
-      wallJumpClimb: [800,800],
+      wallJumpOff: [800, 800],
       wallLeap: [800,800]
     })
   }
@@ -64,8 +138,22 @@ class Player {
 
     this.maxHeightReached = Math.max(this.maxHeightReached, Math.floor(this.body.position[1]))
 
-    // const deltaTime = this.world.lastTimeStep
-    // this.body.velocity[1] += this.world.gravity[1] * deltaTime;
+    if (this.controller.input[0] > 0 && this.state !== "walk_right") {
+      this.state = "walk_right"
+      // walk right
+      this.sprite.textures = this.getWalkRightTextures()
+      this.sprite.play()
+    } else if (this.controller.input[0] < 0 && this.state !== "walk_left") {
+      this.state = "walk_left"
+      // walk right
+      // walk left
+      this.sprite.textures = this.getWalkLeftTextures()
+      this.sprite.play()
+    } else if (this.controller.input[0] === 0 && this.state !== "stop") {
+      this.state = "stop"
+      this.sprite.gotoAndStop(0)
+    }
+
   }
 
   getMaxHeightReached() { return this.maxHeightReached }
@@ -73,12 +161,6 @@ class Player {
   jump() {
     this.controller.setJumpKeyState(true)
 
-    // console.log("attempt jump: canJump - " + this.canJump)
-    // if (!this.canJump) return
-
-    // this.body.velocity[1] += 500  // up
-
-    // this.canJump = false
   }
 
   stopJump() {

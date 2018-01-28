@@ -29,7 +29,7 @@ class Wall {
 
   getType() { return this.constructor.name }
 
-  getWidth() { return 150 }
+  getWidth() { return 128 }
   getHeight() { return 5000 }
   
 }

@@ -31,7 +31,7 @@ class Player {
   initSprite() {
     this.spriteSheetImage  = PIXI.BaseTexture.fromImage("neo_black_spritesheet.png")
     this.sprite = new PIXI.extras.AnimatedSprite(this.getWalkRightTextures())
-    this.sprite.animationSpeed = 0.2
+    this.sprite.animationSpeed = 0.15
     this.sprite.anchor.set(0.5)
     this.sprite.scale.y = -1
   }
@@ -41,6 +41,8 @@ class Player {
       this.textures["walk_right"] = this.extractTextures(0, 4)
     }
 
+    this.currentTexture = "walk_right"
+
     return this.textures["walk_right"]
   }
 
@@ -48,6 +50,8 @@ class Player {
     if (!this.textures["walk_left"]) {
       this.textures["walk_left"] = this.extractTextures(5, 9, { isReversed: true })
     }
+
+    this.currentTexture = "walk_left"
 
     return this.textures["walk_left"]
   }
@@ -57,6 +61,8 @@ class Player {
       this.textures["jump_left"] = this.extractTextures(10, 18, { isReversed: true })
     }
 
+    this.currentTexture = "jump_left"
+
     return this.textures["jump_left"]
   }
 
@@ -64,6 +70,8 @@ class Player {
     if (!this.textures["jump_right"]) {
       this.textures["jump_right"] = this.extractTextures(20, 28)
     }
+
+    this.currentTexture = "jump_right"
 
     return this.textures["jump_right"]
   }
@@ -100,8 +108,8 @@ class Player {
       velocityXSmoothing: 0.0001,
       timeToJumpApex: 0.4,
       skinWidth: 0.1,
-      minJumpHeight: 50,
-      maxJumpHeight: 80,
+      minJumpHeight: 100,
+      maxJumpHeight: 170,
       wallSlideSpeedMax: 10000,
       wallJumpClimb: [800,800],
       wallJumpOff: [800, 800],
@@ -109,6 +117,7 @@ class Player {
     })
 
     this.controller.onJumpOffWall = this.onJumpOffWall.bind(this)
+    this.controller.shouldAllowWallJump = this.shouldAllowWallJump.bind(this)
   }
 
   initPhysics(x,y) {
@@ -191,6 +200,12 @@ class Player {
   onJumpOffWall() {
     console.log("jump key...")
     this.jumpSound.play()
+  }
+
+  shouldAllowWallJump() {
+    const isJumping = this.currentTexture === "jump_left" || this.currentTexture === "jump_right"
+    const isCorrectFrame = this.sprite.currentFrame === 8 || this.sprite.currentFrame === 7 || this.sprite.currentFrame === 0
+    return isJumping && isCorrectFrame
   }
 
   stopJump() {

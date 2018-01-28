@@ -148,6 +148,8 @@
 		 */
 		this.maxDescendAngle = options.maxDescendAngle !== undefined ? options.maxDescendAngle : 80 * DEG_TO_RAD;
 
+		this.wallJumpAttempt = 0
+
 		this.collisions = {
 			above: false,
 			below: false,
@@ -333,8 +335,13 @@
 					velocity[0] = velocity[1] / Math.tan(collisions.slopeAngle) * sign(velocity[0]);
 				}
 
+				this.wallJumpAttempt = 0;
 				collisions.below = directionY === -1;
 				collisions.above = directionY === 1;
+
+				if (collisions.below === true) {
+					// debugger
+				}
 			}
 
 			this.raycastResult.reset();
@@ -727,20 +734,25 @@
 				let prevXVel = velocity[0]
 
 				if (wallSliding) {
-					if (typeof this.onJumpOffWall !== "undefined") {
-						this.onJumpOffWall()
+					let shouldAllowWallJump
+					console.log("[]wallJumpAttempt: " + this.wallJumpAttempt)
+					if (this.wallJumpAttempt === 0) {
+						// debugger
+						this.wallJumpAttempt += 1
+						shouldAllowWallJump = this.shouldAllowWallJump()
+					} else {
+						shouldAllowWallJump = false
 					}
-					// console.log("wallSliding..")
-					// if (wallDirX === input[0]) {
-					// 	velocity[0] = -wallDirX * this.wallJumpClimb[0];
-					// 	velocity[1] = this.wallJumpClimb[1];
-					// } else if (input[0] === 0) {
-						// velocity[0] = -wallDirX * this.wallJumpOff[0];
-						// velocity[1] = this.wallJumpOff[1];
-					// } else {
+
+					if (shouldAllowWallJump) {
+						this.wallJumpAttempt = 0 // successful walljump, reset counter
 						velocity[0] = -wallDirX * this.wallLeap[0];
 						velocity[1] = this.wallLeap[1];
-					// }
+
+						if (typeof this.onJumpOffWall !== "undefined") {
+							this.onJumpOffWall()
+						}
+					}
 				}
 
 				if (controller.collisions.below) {
@@ -756,7 +768,7 @@
 				}
 			}
 
-			velocity[1] += this.gravity * deltaTime;
+			velocity[1] += this.gravity * deltaTime * 0.5;
 			vec2.scale(scaledVelocity, velocity, deltaTime);
 			controller.move(scaledVelocity, input);
 

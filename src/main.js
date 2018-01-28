@@ -21,19 +21,11 @@ class Main {
       loop: true
     })
 
-    // this.bgSound.play()
+    this.bgSound.play()
   }
 
   static initControls() {
     window.keyPresses = {}
-
-    document.addEventListener("keypress", (event) => {
-        console.log("keypress")
-      if (event.which === 38) {
-        console.log("keypress")
-        this.player.jumpSound.play()
-      }
-    })
 
     document.addEventListener("keydown", (event) => {
       // keyPresses[event.which] = false
@@ -41,7 +33,9 @@ class Main {
 
       switch(event.keyCode){
         case 39: this.player.right = 1; break; // right key
-        case 38: this.player.jump(); break; // up key
+        case 38: 
+          this.player.jump(); 
+          break; // up key
         case 37: this.player.left = 1; break; // left key
         default:
       }
@@ -66,7 +60,7 @@ class Main {
   static initPhysics() {
     console.log("initPhysics")
     window.world = this.world = new p2.World({
-        gravity: [0, -1500]
+        gravity: [0, -50]
     })
 
     this.world.defaultContactMaterial.friction = 0.9
@@ -105,7 +99,7 @@ class Main {
   static makeObstaclesFall() {
     for (var i = 0; i < this.obstacles.length; i++) {
       let obstacle = this.obstacles[i]
-      obstacle.body.position[1] -= 3
+      obstacle.body.position[1] -= 1
     }
   }
 

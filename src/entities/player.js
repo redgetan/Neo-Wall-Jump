@@ -1,39 +1,43 @@
 const Constants = require("./../constants")
+const BaseEntity = require("./base_entity")
 
-class Player {
-  constructor(world, x, y) {
-    this.world = world
-    this.initPhysics(x,y)
+class Player extends BaseEntity {
+  constructor(game, x, y) {
+    super(game, x, y)
+
     this.initController()
 
-    this.spriteWidth = 40
-    this.spriteHeight = 60
-    this.spriteSheetRowCount = 10
-
-    this.textures = {}
-  
     this.maxHeightReached = 0
     this.canJump = true
 
     this.left = 0
     this.right = 0
 
-    this.initSprite()
     this.initSound()
   }
 
   initSound() {
     this.jumpSound = new Howl({
-      src: ['jump.mp3']
+      src: ['./assets/audio/jump.mp3']
     })
   }
 
+  getSpritePath() {
+    return "./assets/images/neo_black_spritesheet.png" 
+  }
+
+  getSpriteSheetRowCount() {
+    return 10
+  }
+
   initSprite() {
-    this.spriteSheetImage  = PIXI.BaseTexture.fromImage("neo_black_spritesheet.png")
+    this.spriteSheetImage  = PIXI.BaseTexture.fromImage(this.getSpritePath())
     this.sprite = new PIXI.extras.AnimatedSprite(this.getWalkRightTextures())
     this.sprite.animationSpeed = 0.15
     this.sprite.anchor.set(0.5)
     this.sprite.scale.y = -1
+
+    this.stage.addChild(this.sprite)
   }
 
   getWalkRightTextures() {
@@ -80,13 +84,13 @@ class Player {
     let textures = []
 
     for (var i = start; i <= stop; i++) {
-      let row = Math.floor(i / this.spriteSheetRowCount)
-      let col = i % this.spriteSheetRowCount
+      let row = Math.floor(i / this.getSpriteSheetRowCount())
+      let col = i % this.getSpriteSheetRowCount()
 
-      let x = col * this.spriteWidth
-      let y = row * this.spriteHeight
+      let x = col * this.getWidth()
+      let y = row * this.getHeight()
 
-      let rectange = new PIXI.Rectangle(x, y, this.spriteWidth, this.spriteHeight)
+      let rectange = new PIXI.Rectangle(x, y, this.getWidth(), this.getHeight())
       let texture = new PIXI.Texture(this.spriteSheetImage, rectange)
 
       textures.push(texture)
@@ -133,14 +137,8 @@ class Player {
     // this.world.addBody(this.body)
   }
 
-  allowJump() {
-    this.canJump = true
-  }
-
   getCollisionGroup() { return Constants.collisionGroup.Player }
   getCollisionMask()  { return Constants.collisionGroup.Wall | Constants.collisionGroup.Ground | Constants.collisionGroup.Obstacle }
-
-  getType() { return this.constructor.name }
 
   getBodyProperties(x, y) {
     return {
@@ -157,7 +155,6 @@ class Player {
 
     this.maxHeightReached = Math.max(this.maxHeightReached, Math.floor(this.body.position[1]))
 
-    // console.log("state: " + this.state + " ")
     if (this.controller.input[0] > 0 && this.state !== "walk_right" && this.controller.collisions.below === true) {
       this.state = "walk_right"
       // walk right
@@ -172,7 +169,7 @@ class Player {
     } else if (this.controller.collisions.below === false && this.state !== "jump") {
       this.state = "jump"
 
-      if (this.controller.faceDir === 1) {
+      if (this.controller.collisions.faceDir === 1) {
         this.sprite.textures = this.getJumpRightTextures()
       } else {
         this.sprite.textures = this.getJumpLeftTextures()
@@ -181,7 +178,7 @@ class Player {
       this.sprite.play()
     } else if (this.controller.input[0] === 0 && this.state !== "stop" && this.controller.collisions.below === true) {
       this.state = "stop"
-      if (this.controller.faceDir === 1) {
+      if (this.controller.collisions.faceDir === 1) {
         this.sprite.textures = this.getWalkRightTextures()
       } else {
         this.sprite.textures = this.getWalkLeftTextures()
@@ -198,7 +195,6 @@ class Player {
   }
 
   onJumpOffWall() {
-    console.log("jump key...")
     this.jumpSound.play()
   }
 
@@ -210,22 +206,6 @@ class Player {
 
   stopJump() {
     this.controller.setJumpKeyState(false)
-  }
-
-  walk(direction) {
-    const prevPosition = this.body.position
-
-    if (direction === "left") {
-      this.body.velocity[0] -= 30
-    } else if (direction === "right") {
-      this.body.velocity[0] += 30
-    }
-
-    this.body.position = prevPosition
-  }
-
-  render() {
-
   }
 
   getWidth() { return 40 }

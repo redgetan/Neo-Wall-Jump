@@ -264,7 +264,6 @@
 					var distanceToSlopeStart = 0;
 					if (slopeAngle !== collisions.slopeAngleOld) {
 						distanceToSlopeStart = distance - skinWidth;
-						console.log("velocity-- 265")
 						velocity[0] -= distanceToSlopeStart * directionX;
 					}
 					this.climbSlope(velocity, slopeAngle);
@@ -331,7 +330,6 @@
 				rayLength = distance;
 
 				if (collisions.climbingSlope) {
-					console.log("velocity-- 332")
 					velocity[0] = velocity[1] / Math.tan(collisions.slopeAngle) * sign(velocity[0]);
 				}
 
@@ -363,7 +361,6 @@
 				var slopeAngle = angle(this.raycastResult.normal, UNIT_Y);
 				if (slopeAngle !== collisions.slopeAngle) {
 					velocity[0] = (this.raycastResult.getHitDistance(ray) - skinWidth) * directionX;
-					console.log("velocity-- 360")
 					collisions.slopeAngle = slopeAngle;
 				}
 			}
@@ -735,7 +732,6 @@
 
 				if (wallSliding) {
 					let shouldAllowWallJump
-					console.log("[]wallJumpAttempt: " + this.wallJumpAttempt)
 					if (this.wallJumpAttempt === 0) {
 						// debugger
 						this.wallJumpAttempt += 1

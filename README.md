@@ -4,8 +4,15 @@ NeoWallJump is a game inspired from Super Metroid + Matrix made during the Globa
 
 Usage
 --------------
-    python -m SimpleHTTPServer
 
+Development
+    gulp watch
+
+Production
+    gulp build
+
+To Run
+    cd dist/ && python -m SimpleHTTPServer
 
 Credits
 --------

@@ -36,13 +36,36 @@ gulp.task('build_sources', function() {
 
 gulp.task('build', function(cb) {
   runSequence([
+      'copy_html',
+      'copy_lib',
+      'copy_resources',
       'build_sources',
     ], cb);
 });
 
 // DEVELOPMENT
-
 gulp.task('watch', function(cb) {
+  runSequence([
+      'copy_html',
+      'copy_lib',
+      'copy_resources',
+      'compile_javascript',
+    ], cb);
+});
+
+gulp.task('copy_html', function(cb) {
+  gulp.src("./src/index.html").pipe(gulp.dest(paths.dist))
+});
+
+gulp.task('copy_lib', function(cb) {
+  gulp.src("./src/lib/**/*").pipe(gulp.dest(paths.dist + "/lib"))
+});
+
+gulp.task('copy_resources', function(cb) {
+  gulp.src("./src/assets/**/*").pipe(gulp.dest(paths.dist + "/assets"))
+});
+
+gulp.task('compile_javascript', function(cb) {
 
   var bundler = browserify(paths.entry, watchify.args);
 
